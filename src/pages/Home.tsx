@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { BookOpen, Clock, BarChart3, PlayCircle, CheckCircle2, ArrowRight, User as UserIcon, LineChart } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { cn } from '../lib/utils';
 import { useAuth } from '../contexts/AuthContext';
 import { usePocketBase } from '../contexts/PocketBaseContext';
 import type { Course, UserProgress } from '../types';
