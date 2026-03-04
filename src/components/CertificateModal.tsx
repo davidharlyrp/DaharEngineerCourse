@@ -1,5 +1,6 @@
-import { useRef, useState, useEffect, forwardRef } from 'react';
+import { useState, useEffect, forwardRef } from 'react';
 import { X, Download, Award, Loader2 } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 import type { Course, User } from '../types';
 import { usePocketBase } from '../contexts/PocketBaseContext';
 import { cn } from '../lib/utils';
@@ -41,7 +42,7 @@ const CertificateContent = forwardRef<HTMLDivElement, {
           <h2 className="text-xl font-bold tracking-widest text-[#2c3e50] uppercase">Dahar Engineer</h2>
         </div>
 
-        {/* Sertifikat Title */}
+        {/* Certificate Title */}
         <div className="w-full">
           <h3 className="text-[64px] font-black tracking-[0.1em] mb-2 uppercase italic leading-none text-[#2c3e50]">
             SERTIFIKAT
@@ -110,8 +111,17 @@ export function CertificateModal({
   certificate,
 }: CertificateModalProps) {
   const { pb } = usePocketBase();
+  const { refreshUser } = useAuth();
   const [isGenerating, setIsGenerating] = useState(false);
   const [completionCount, setCompletionCount] = useState<number | null>(null);
+  const [showConfirmation, setShowConfirmation] = useState(false);
+
+  // Refresh user data when modal opens to ensure name is up to date
+  useEffect(() => {
+    if (isOpen) {
+      refreshUser();
+    }
+  }, [isOpen]);
 
   // Fetch completion count for this course to generate certificate number
   useEffect(() => {
@@ -142,10 +152,15 @@ export function CertificateModal({
   };
 
   const handleDownloadPDF = async () => {
-    // 1. If certificate already exists in PocketBase, just open it
+    // 1. If certificate already exists in PocketBase, force download
     if (certificate && progressId) {
-      const fileUrl = pb.files.getUrl({ id: progressId, collectionId: 'online_course_progress', certificate }, certificate);
-      window.open(fileUrl, '_blank');
+      const fileUrl = pb.files.getUrl({ id: progressId, collectionId: 'online_course_progress', certificate }, certificate) + '?download=1';
+      const a = document.createElement('a');
+      a.href = fileUrl;
+      a.download = `Certificate-${course.title.replace(/\s+/g, '-')}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
       return;
     }
 
@@ -156,7 +171,7 @@ export function CertificateModal({
       setIsGenerating(true);
 
       // Call the FastAPI backend to generate and sign the PDF
-      const response = await fetch('http://localhost:8000/generate-certificate', {
+      const response = await fetch(new URL('generate-certificate', import.meta.env.VITE_API_URL), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -181,6 +196,10 @@ export function CertificateModal({
       // Upload to PocketBase
       const formData = new FormData();
       formData.append('certificate', pdfBlob, fileName);
+
+      // Also save the certificateId and flag it as issued
+      const certId = getCertificateId();
+      formData.append('certificateId', certId);
 
       await pb.collection('online_course_progress').update(progressId, formData);
 
@@ -216,12 +235,12 @@ export function CertificateModal({
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#0a0a0a]/95 backdrop-blur-md animate-in fade-in duration-300">
-      <div className="relative w-full max-w-5xl max-h-[95vh] flex flex-col bg-dark-900 border border-white/5 rounded-3xl shadow-2xl overflow-hidden">
+      <div className="relative w-full max-w-5xl max-h-[95dvh] flex flex-col bg-dark-900 border border-white/5 rounded-lg shadow-2xl overflow-hidden">
         {/* Header */}
-        <div className="px-8 py-6 border-b border-white/5 flex items-center justify-between">
+        <div className="px-6 py-4 border-b border-white/5 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-army-500/10 rounded-2xl flex items-center justify-center border border-army-500/20">
-              <Award className="w-6 h-6 text-army-500" />
+            <div className="w-8 h-8 rounded-2xl flex items-center justify-center">
+              <Award className="w-8 h-8 text-army-500" />
             </div>
             <div>
               <h2 className="text-xl font-bold text-white leading-tight">Your Certificate</h2>
@@ -236,9 +255,28 @@ export function CertificateModal({
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-8 lg:p-12 space-y-8 scrollbar-thin">
+        <div className="flex-1 overflow-y-auto p-6 lg:p-6 space-y-4 scrollbar-thin">
+          {/* Instructions Notice */}
+          <div className="bg-army-500/10 border border-army-500/20 rounded-lg p-4 flex flex-col md:flex-row items-center justify-center gap-6">
+            <div className="space-y-1 text-center md:text-left w-full">
+              <h3 className="text-sm font-bold text-white uppercase tracking-wider">Preview Notice</h3>
+              <p className="text-xs text-muted-foreground max-w-lg leading-relaxed">
+                This is a preview of your certificate. Please verify that your name <span className="text-army-400 font-bold">"{user.name}"</span> is correct.
+                If you need to make changes, please update your name in your profile dashboard.
+              </p>
+            </div>
+            <a
+              href="https://daharengineer.com/dashboard"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="shrink-0 px-6 py-3 bg-white/5 hover:bg-white/10 text-white text-[10px] font-bold uppercase tracking-tight border border-white/10 rounded-lg transition-all"
+            >
+              Go to Dashboard
+            </a>
+          </div>
+
           {/* Certificate Preview Wrapper - handles scaling for UI */}
-          <div className="relative mx-auto bg-white/5 p-4 rounded-xl border border-white/10 flex items-center justify-center overflow-hidden">
+          <div className="relative mx-auto bg-white/5 p-2 rounded-lg border border-white/10 flex items-center justify-center overflow-hidden">
             <div
               style={{
                 transform: 'scale(var(--preview-scale))',
@@ -271,12 +309,12 @@ export function CertificateModal({
         </div>
 
         {/* Action Bar */}
-        <div className="p-8 border-t border-white/5 bg-dark-950/50 flex flex-col sm:flex-row gap-4 justify-center items-center">
+        <div className="p-4 border-t border-white/5 bg-dark-950/50 flex flex-col sm:flex-row gap-4 justify-center items-center">
           <button
-            onClick={handleDownloadPDF}
+            onClick={() => setShowConfirmation(true)}
             disabled={isGenerating}
             className={cn(
-              "flex items-center justify-center gap-3 px-10 py-4 bg-army-500 text-secondary rounded-2xl font-bold transition-all duration-300 w-full sm:w-auto",
+              "flex items-center justify-center gap-3 px-10 py-2 bg-army-500 text-secondary rounded-lg font-bold transition-all duration-300 w-full sm:w-auto",
               "shadow-xl shadow-army-500/20 hover:shadow-army-500/40 hover:-translate-y-1",
               isGenerating && "opacity-70 cursor-not-allowed translate-y-0"
             )}
@@ -284,30 +322,63 @@ export function CertificateModal({
             {isGenerating ? (
               <>
                 <Loader2 className="w-5 h-5 animate-spin" />
-                Memproses...
+                Processing...
               </>
             ) : (
               <>
                 <Download className="w-5 h-5" />
-                Unduh Sertifikat (PDF)
+                Download Certificate (PDF)
               </>
             )}
           </button>
 
           <button
             onClick={onClose}
-            className="px-10 py-4 bg-white/5 text-white rounded-2xl font-bold border border-white/10 hover:bg-white/10 transition-all w-full sm:w-auto"
+            className="px-10 py-2 bg-white/5 text-white rounded-lg font-bold border border-white/10 hover:bg-white/10 transition-all w-full sm:w-auto"
           >
-            Mungkin Nanti
+            Maybe Later
           </button>
         </div>
 
         {/* Appreciation Footer */}
         <div className="px-8 py-6 bg-army-500/5 text-center">
           <p className="text-muted-foreground text-xs italic">
-            Sertifikat ini diakui secara resmi oleh Dahar Engineer Consultant sebagai bukti kompetensi Anda.
+            This certificate is officially recognized by Dahar Engineer as proof of your competence.
           </p>
         </div>
+
+        {/* Final Confirmation Modal Overlay */}
+        {showConfirmation && (
+          <div className="absolute inset-0 z-[110] flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm animate-in zoom-in duration-200">
+            <div className="bg-dark-900 border border-white/10 rounded-lg p-8 max-w-md w-full shadow-2xl space-y-6">
+              <div className="text-center space-y-2">
+                <h3 className="text-xl font-bold text-white">Confirm Name</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  Is the name <span className="text-white font-bold">"{user.name}"</span> correct?
+                  Once generated, the name on this certificate cannot be changed.
+                </p>
+              </div>
+
+              <div className="flex flex-col gap-3">
+                <button
+                  onClick={() => {
+                    setShowConfirmation(false);
+                    handleDownloadPDF();
+                  }}
+                  className="w-full py-2 bg-army-500 text-secondary rounded-lg font-bold transition-all hover:bg-army-400"
+                >
+                  Agree & Download
+                </button>
+                <button
+                  onClick={() => setShowConfirmation(false)}
+                  className="w-full py-2 bg-white/5 text-white rounded-lg font-bold border border-white/10 hover:bg-white/10 transition-all"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

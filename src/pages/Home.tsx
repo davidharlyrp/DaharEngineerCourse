@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { BookOpen, Clock, BarChart3, PlayCircle, CheckCircle2, ArrowRight, User as UserIcon } from 'lucide-react';
+import { BookOpen, Clock, BarChart3, PlayCircle, CheckCircle2, ArrowRight, User as UserIcon, LineChart } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '../lib/utils';
 import { useAuth } from '../contexts/AuthContext';
@@ -107,19 +107,26 @@ export function Home() {
       <nav className="fixed top-0 left-0 right-0 z-50 bg-secondary/80 backdrop-blur-xl border-b border-white/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-3">
-            <div className="w-10 h-10 flex items-center justify-center">
-              <img src="/logo.png" alt="Dahar Engineer" className="w-10 h-10" />
+            <div className="w-8 h-8 flex items-center justify-center">
+              <img src="/logo.png" alt="Dahar Engineer" className="w-8 h-8" />
             </div>
-            <div className="flex flex-col">
-              <span className="text-xl font-bold tracking-tight leading-none">DAHAR</span>
-              <span className="text-[10px] font-light text-muted-foreground leading-tight tracking-[0.2em]">ENGINEER</span>
+
+            <div className=" flex items-center">
+              <span className="text-2xl font-semibold tracking-tight">DAHAR</span>
+              <span className="text-2xl font-light text-muted-foreground ml-1">
+                ENGINEER
+              </span>
             </div>
           </Link>
 
-          <div className="flex items-center gap-6">
-            <div className="hidden md:flex items-center gap-4 px-4 py-2 bg-white/5 rounded-2xl border border-white/5">
+          <div className="flex items-center gap-2">
+            <div className="hidden md:flex items-center gap-4 px-4 py-2">
               <div className="w-8 h-8 rounded-full bg-army-500/10 flex items-center justify-center border border-army-500/20">
-                <UserIcon className="w-4 h-4 text-army-500" />
+                {user?.avatar ? (
+                  <img src={pb.files.getUrl(user, user.avatar)} alt="Avatar" className="w-8 h-8 rounded-full" />
+                ) : (
+                  <UserIcon className="w-4 h-4 text-army-500" />
+                )}
               </div>
               <div className="flex flex-col">
                 <span className="text-xs font-bold leading-none">{user?.name}</span>
@@ -156,13 +163,13 @@ export function Home() {
             </div>
 
             <div className="flex items-center gap-4">
-              <div className="px-8 py-6 bg-white/5 border border-white/5 rounded-[32px] text-center min-w-[140px] backdrop-blur-sm">
+              <div className="px-8 py-4 bg-white/5 border border-white/5 rounded-lg text-center min-w-[100px] backdrop-blur-sm">
                 <p className="text-[10px] font-bold text-army-400 uppercase tracking-widest mb-2 opacity-60">Enrolled</p>
-                <p className="text-3xl font-black leading-none">{courses.length}</p>
+                <p className="text-2xl font-black leading-none">{courses.length}</p>
               </div>
-              <div className="px-8 py-6 bg-army-500 border border-army-500 rounded-[32px] text-center min-w-[140px] shadow-2xl shadow-army-500/20">
+              <div className="px-8 py-4 bg-army-500 border border-army-500 rounded-lg text-center min-w-[100px] shadow-2xl shadow-army-500/20">
                 <p className="text-[10px] font-bold text-secondary uppercase tracking-widest mb-2 opacity-60">Completed</p>
-                <p className="text-3xl font-black text-secondary leading-none">
+                <p className="text-2xl font-black text-secondary leading-none">
                   {courses.filter(c => c.isCompleted).length}
                 </p>
               </div>
@@ -176,17 +183,17 @@ export function Home() {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="flex flex-col items-center justify-center py-24 bg-white/5 border border-dashed border-white/10 rounded-[48px]"
+              className="flex flex-col items-center justify-center py-24 bg-white/5 border border-dashed border-white/10 rounded-xl"
             >
               <div className="w-20 h-20 bg-white/5 rounded-3xl flex items-center justify-center mb-8">
                 <BookOpen className="w-10 h-10 text-army-500" />
               </div>
-              <h3 className="text-2xl font-bold mb-3">Belum ada kursus aktif</h3>
-              <p className="text-muted-foreground text-center max-w-sm mb-10 px-6 leading-relaxed">
-                Anda belum memiliki akses ke kursus manapun saat ini. Silakan hubungi admin atau cari kursus di katalog.
+              <h3 className="text-2xl font-bold mb-3">You don't have any courses yet</h3>
+              <p className="text-muted-foreground text-center max-w-md mb-10 px-6 leading-relaxed">
+                You don't have any courses yet. Please contact the admin or find a course in the catalog.
               </p>
-              <button className="px-10 py-4 bg-white text-secondary font-black rounded-2xl hover:bg-army-500 hover:text-secondary transition-all shadow-xl shadow-white/5 hover:shadow-army-500/20 active:scale-95">
-                Lihat Katalog Kursus
+              <button onClick={() => window.open("https://daharengineer.com/courses/online-courses", "_blank")} className="px-10 py-4 bg-white text-black font-black rounded-2xl hover:bg-army-500 hover:text-white transition-all shadow-xl shadow-white/5 hover:shadow-army-500/20 active:scale-95">
+                Explore Available Courses
               </button>
             </motion.div>
           ) : (
@@ -199,10 +206,10 @@ export function Home() {
                   transition={{ delay: idx * 0.1, duration: 0.5 }}
                   whileHover={{ y: -12 }}
                   onClick={() => navigate(`/course/${course.slug}`)}
-                  className="group relative flex flex-col bg-dark-900 border border-white/5 rounded-[40px] overflow-hidden hover:border-army-500/40 transition-all duration-500 cursor-pointer shadow-2xl hover:shadow-army-500/20"
+                  className="group relative flex flex-col bg-dark-900 border border-white/5 rounded-lg overflow-hidden hover:border-army-500/40 transition-all duration-500 cursor-pointer shadow-2xl hover:shadow-army-500/20"
                 >
                   {/* Thumbnail Container */}
-                  <div className="aspect-[16/10] relative overflow-hidden m-4 rounded-[28px]">
+                  <div className="aspect-[16/10] relative overflow-hidden m-2 rounded-lg">
                     {course.thumbnail ? (
                       <img
                         src={course.thumbnail}
@@ -215,59 +222,44 @@ export function Home() {
                       </div>
                     )}
 
-                    {/* Level Badge Overlay */}
-                    <div className="absolute top-4 left-4">
-                      <div className={cn(
-                        "px-3 py-1.5 rounded-2xl text-[10px] font-black uppercase tracking-widest backdrop-blur-md border",
-                        course.level === 'beginner' ? "bg-green-500/20 text-green-400 border-green-500/20" :
-                          course.level === 'intermediate' ? "bg-yellow-500/20 text-yellow-400 border-yellow-500/20" :
-                            "bg-red-500/20 text-red-400 border-red-500/20"
-                      )}>
-                        {course.level}
-                      </div>
-                    </div>
-
                     <div className="absolute inset-0 bg-gradient-to-t from-dark-950 via-transparent to-transparent opacity-40" />
                   </div>
 
-                  <div className="px-8 pb-8 pt-2 flex-1 flex flex-col">
+                  <div className="px-8 pb-2 pt-2 flex-1 flex flex-col">
                     <div className="mb-6">
-                      <h3 className="text-2xl font-black leading-tight mb-3 group-hover:text-army-400 transition-colors tracking-tight">
+                      <h3 className="text-lg font-black leading-tight mb-3 group-hover:text-army-400 transition-colors tracking-tight">
                         {course.title}
                       </h3>
-                      <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed opacity-80">
+                      <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed opacity-80">
                         {course.description}
                       </p>
                     </div>
 
                     {/* Stats Icons */}
-                    <div className="flex items-center gap-6 mb-8">
+                    <div className="flex flex-col items-start gap-2 mb-2">
                       <div className="flex items-center gap-2.5">
-                        <div className="p-2.5 bg-white/5 rounded-2xl border border-white/5 group-hover:bg-army-500/10 group-hover:border-army-500/20 transition-all">
-                          <BarChart3 className="w-4 h-4 text-army-500" />
-                        </div>
-                        <div className="flex flex-col">
-                          <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-0.5 opacity-60">Modules</span>
-                          <span className="text-sm font-black">{course.totalModules}</span>
-                        </div>
+                        <BarChart3 className="w-4 h-4 text-army-500" />
+                        <span className="text-xs font-bold">{course.totalModules}</span>
+                        <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest opacity-60">Modules</span>
                       </div>
                       <div className="flex items-center gap-2.5">
-                        <div className="p-2.5 bg-white/5 rounded-2xl border border-white/5 group-hover:bg-army-500/10 group-hover:border-army-500/20 transition-all">
-                          <Clock className="w-4 h-4 text-army-500" />
-                        </div>
-                        <div className="flex flex-col">
-                          <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-0.5 opacity-60">Duration</span>
-                          <span className="text-sm font-black">{course.duration}</span>
-                        </div>
+                        <Clock className="w-4 h-4 text-army-500" />
+                        <span className="text-xs font-bold">{course.duration}</span>
+                        <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest opacity-60">Duration</span>
+                      </div>
+                      <div className="flex items-center gap-2.5">
+                        <LineChart className="w-4 h-4 text-army-500" />
+                        <span className="text-xs font-bold">{course.level}</span>
+                        <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest opacity-60">Level</span>
                       </div>
                     </div>
 
-                    <div className="mt-auto pt-8 border-t border-white/5">
+                    <div className="mt-auto pt-2 border-t border-white/5">
                       {/* Progress Section */}
-                      <div className="mb-8">
-                        <div className="flex justify-between items-end mb-3">
-                          <span className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] opacity-60">Progress</span>
-                          <span className="text-lg font-black text-army-400 leading-none">{Math.round(course.progressPercentage)}%</span>
+                      <div className="mb-2">
+                        <div className="flex justify-between items-end mb-2">
+                          <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em] opacity-60">Progress</span>
+                          <span className="text-sm font-bold text-army-400 leading-none">{Math.round(course.progressPercentage)}%</span>
                         </div>
                         <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
                           <motion.div
@@ -287,26 +279,26 @@ export function Home() {
                               <div className="p-2 bg-army-400/10 rounded-full border border-army-400/20">
                                 <CheckCircle2 className="w-4 h-4" />
                               </div>
-                              <span className="text-[10px] font-black uppercase tracking-[0.1em]">Selesai</span>
+                              <span className="text-xs font-bold uppercase tracking-[0.1em]">Finished</span>
                             </div>
                           ) : course.isStarted ? (
                             <div className="flex items-center gap-2.5 text-white">
                               <div className="p-2 bg-army-500/20 rounded-full border border-army-500/30 animate-pulse">
                                 <PlayCircle className="w-4 h-4 text-army-400" />
                               </div>
-                              <span className="text-[10px] font-black uppercase tracking-[0.1em]">Lanjutkan</span>
+                              <span className="text-xs font-bold uppercase tracking-[0.1em]">Continue</span>
                             </div>
                           ) : (
                             <div className="flex items-center gap-2.5 text-muted-foreground">
                               <div className="p-2 bg-white/5 rounded-full border border-white/5">
                                 <PlayCircle className="w-4 h-4 opacity-40" />
                               </div>
-                              <span className="text-[10px] font-black uppercase tracking-[0.1em]">Mulai Belajar</span>
+                              <span className="text-xs font-bold uppercase tracking-[0.1em]">Start</span>
                             </div>
                           )}
                         </div>
-                        <div className="w-12 h-12 bg-white/5 border border-white/10 rounded-[18px] flex items-center justify-center group-hover:bg-army-500 group-hover:border-army-500 group-hover:shadow-lg group-hover:shadow-army-500/20 transition-all duration-500">
-                          <ArrowRight className="w-6 h-6 group-hover:text-secondary group-hover:translate-x-0.5 transition-all" />
+                        <div className="w-8 h-8 bg-white/5 border border-white/10 rounded-[18px] flex items-center justify-center group-hover:bg-army-500 group-hover:border-army-500 group-hover:shadow-lg group-hover:shadow-army-500/20 transition-all duration-500">
+                          <ArrowRight className="w-4 h-4 group-hover:text-secondary group-hover:translate-x-0.5 transition-all" />
                         </div>
                       </div>
                     </div>

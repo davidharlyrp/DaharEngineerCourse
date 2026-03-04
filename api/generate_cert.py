@@ -24,7 +24,7 @@ def generate_dev_certificate():
         x509.NameAttribute(NameOID.COUNTRY_NAME, u"ID"),
         x509.NameAttribute(NameOID.STATE_OR_PROVINCE_NAME, u"West Java"),
         x509.NameAttribute(NameOID.LOCALITY_NAME, u"Bandung"),
-        x509.NameAttribute(NameOID.ORGANIZATION_NAME, u"PT. Dahar Engineer Consultant"),
+        x509.NameAttribute(NameOID.ORGANIZATION_NAME, u"Dahar Engineer"),
         x509.NameAttribute(NameOID.COMMON_NAME, u"Dahar Engineer Dev Cert"),
     ])
     
@@ -59,10 +59,20 @@ def generate_dev_certificate():
         encryption_algorithm=serialization.BestAvailableEncryption(b"secret")
     )
     
-    with open("certs/dev_cert.p12", "wb") as f:
-        f.write(p12)
-        
-    print("Certificate generated at certs/dev_cert.p12 with password: 'secret'")
+    # Write PEM format for better compatibility
+    pem_key = private_key.private_bytes(
+        encoding=serialization.Encoding.PEM,
+        format=serialization.PrivateFormat.TraditionalOpenSSL,
+        encryption_algorithm=serialization.NoEncryption()
+    )
+    pem_cert = cert.public_bytes(serialization.Encoding.PEM)
+    
+    with open("certs/dev_key.pem", "wb") as f:
+        f.write(pem_key)
+    with open("certs/dev_cert.pem", "wb") as f:
+        f.write(pem_cert)
+
+    print("Certificates generated in certs/ directory (P12 and PEM formats)")
 
 if __name__ == "__main__":
     generate_dev_certificate()

@@ -9,6 +9,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, name: string) => Promise<void>;
   logout: () => void;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -29,12 +30,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         avatar: authData.avatar,
         created: authData.created,
         updated: authData.updated,
+        collectionId: authData.collectionId,
+        collectionName: authData.collectionName,
       });
     }
     setIsLoading(false);
 
     // Listen for auth changes
-    const unsubscribe = pb.authStore.onChange((token, model) => {
+    const unsubscribe = pb.authStore.onChange((_token, model) => {
       if (model) {
         setUser({
           id: model.id,
@@ -43,6 +46,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           avatar: model.avatar,
           created: model.created,
           updated: model.updated,
+          collectionId: model.collectionId,
+          collectionName: model.collectionName,
         });
       } else {
         setUser(null);
@@ -64,6 +69,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         avatar: authData.record.avatar,
         created: authData.record.created,
         updated: authData.record.updated,
+        collectionId: authData.record.collectionId,
+        collectionName: authData.record.collectionName,
       });
     } catch (error) {
       console.error('Login error:', error);
@@ -79,8 +86,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         passwordConfirm: password,
         name,
       };
-      const record = await pb.collection('users').create(data);
-      
+      await pb.collection('users').create(data);
+
       // Auto login after registration
       await login(email, password);
     } catch (error) {
@@ -94,6 +101,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null);
   };
 
+  const refreshUser = async () => {
+    try {
+      if (!pb.authStore.isValid) return;
+
+      const authData = await pb.collection('users').authRefresh();
+      setUser({
+        id: authData.record.id,
+        email: authData.record.email,
+        name: authData.record.name || authData.record.email,
+        avatar: authData.record.avatar,
+        created: authData.record.created,
+        updated: authData.record.updated,
+        collectionId: authData.record.collectionId,
+        collectionName: authData.record.collectionName,
+      });
+    } catch (error) {
+      console.error('Refresh user error:', error);
+      // If refresh fails (e.g. token expired), we might want to logout
+      if (pb.authStore.isValid === false) {
+        logout();
+      }
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -103,6 +134,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         login,
         register,
         logout,
+        refreshUser,
       }}
     >
       {children}

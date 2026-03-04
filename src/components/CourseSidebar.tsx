@@ -88,8 +88,8 @@ export function CourseSidebar({
         <>
             {/* Sidebar Toggle Button (Mobile & Desktop) */}
             <div className={cn(
-                "fixed top-20 z-50 transition-all duration-300",
-                sidebarOpen ? "left-[320px]" : "left-4"
+                "fixed top-6 md:top-20 z-50 transition-all duration-300",
+                sidebarOpen ? "left-[calc(100%-4rem)] md:left-[320px]" : "left-4"
             )}>
                 <button
                     onClick={onToggle}
@@ -104,10 +104,10 @@ export function CourseSidebar({
 
             {/* Sidebar Container */}
             <aside className={cn(
-                "fixed top-0 left-0 bottom-0 z-40 bg-secondary border-r border-white/5 transition-all duration-300 overflow-hidden flex flex-col",
-                sidebarOpen ? "w-[300px]" : "w-0"
+                "fixed top-0 left-0 bottom-0 z-40 bg-black border-r border-white/5 transition-all duration-300 overflow-hidden flex flex-col",
+                sidebarOpen ? "w-full md:w-[300px]" : "w-0"
             )}>
-                <div className="w-[300px] flex flex-col h-full">
+                <div className="w-[calc(100%-4rem)] md:w-[300px] flex flex-col h-full">
                     {/* Logo Section */}
                     <div className="p-6 border-b border-white/5">
                         <Link to="/" className="flex items-center gap-3">

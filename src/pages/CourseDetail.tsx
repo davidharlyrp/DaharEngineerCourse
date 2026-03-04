@@ -291,7 +291,7 @@ export function CourseDetail() {
         "transition-all duration-300 min-h-screen flex flex-col",
         sidebarOpen ? "md:pl-[300px]" : "pl-0"
       )}>
-        <div className="flex-1 flex flex-col max-w-5xl mx-auto w-full px-6 py-12">
+        <div className="flex-1 flex flex-col max-w-7xl mx-auto w-full px-6 pt-20 pb-4 md:pt-12 md:pb-12">
           {error ? (
             <div className="flex-1 flex flex-center">
               <div className="text-center">
@@ -310,11 +310,11 @@ export function CourseDetail() {
               <Loader2 className="w-8 h-8 text-army-500 animate-spin" />
             </div>
           ) : (
-            <div className="space-y-8 animate-in fade-in duration-500">
+            <div className="space-y-6 animate-in fade-in duration-500">
               {/* Step Content Card */}
-              <div className="bg-dark-900/50 border border-white/5 rounded-2xl p-8 shadow-2xl overflow-hidden relative group">
+              <div className="bg-dark-900/50 border border-white/5 rounded-lg p-6 shadow-2xl overflow-hidden relative group">
                 {/* Floating Progress Pill */}
-                <div className="absolute top-4 right-4 px-3 py-1 bg-army-500/10 border border-army-500/20 rounded-full flex items-center gap-2">
+                <div className="fixed md:absolute top-4 right-4 px-3 py-1 bg-army-500/10 border border-army-500/20 rounded-full flex items-center gap-2">
                   <div className="w-1.5 h-1.5 bg-army-500 rounded-full animate-pulse" />
                   <span className="text-[10px] font-bold text-army-400 uppercase tracking-wider">
                     Step {mIdx}.{sIdx}
@@ -325,18 +325,18 @@ export function CourseDetail() {
               </div>
 
               {/* Navigation Footer */}
-              <div className="flex items-center justify-between pt-8 border-t border-white/5">
+              <div className="flex items-center justify-between pt-4 border-t border-white/5">
                 <button
                   onClick={handlePrevious}
                   className={cn(
-                    "flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all duration-200",
+                    "flex items-center gap-2 px-6 py-2 rounded-lg font-medium transition-all duration-200",
                     "border border-white/5 text-muted-foreground hover:bg-white/5 hover:text-white",
                     !currentStep || isNavigating ? "opacity-30 cursor-not-allowed" : ""
                   )}
                   disabled={!currentStep || isNavigating}
                 >
                   <ChevronLeft className="w-5 h-5" />
-                  Previous Materi
+                  Previous
                 </button>
 
                 <div className="flex items-center gap-4">
@@ -344,7 +344,7 @@ export function CourseDetail() {
                     <button
                       onClick={handleNext}
                       className={cn(
-                        "flex items-center gap-2 px-8 py-3 bg-army-500 text-secondary rounded-xl font-bold transition-all duration-300",
+                        "flex items-center gap-2 px-6 py-2 bg-army-500 text-secondary rounded-lg font-bold transition-all duration-300",
                         "shadow-lg shadow-army-500/20 hover:shadow-army-500/40 hover:-translate-y-0.5",
                         isNavigating ? "opacity-70 cursor-not-allowed" : ""
                       )}
@@ -357,7 +357,7 @@ export function CourseDetail() {
                         </>
                       ) : (
                         <>
-                          Next Materi
+                          Next
                           <ChevronRight className="w-5 h-5" />
                         </>
                       )}
@@ -365,7 +365,7 @@ export function CourseDetail() {
                   ) : (
                     <button
                       onClick={handleNext}
-                      className="flex items-center gap-2 px-8 py-3 bg-gradient-to-tr from-army-600 to-army-400 text-secondary rounded-xl font-bold shadow-lg shadow-army-500/20 hover:shadow-army-500/40"
+                      className="flex items-center gap-2 px-6 py-2 bg-gradient-to-tr from-army-600 to-army-400 text-secondary rounded-lg font-bold shadow-lg shadow-army-500/20 hover:shadow-army-500/40"
                     >
                       <Trophy className="w-5 h-5" />
                       Complete Course

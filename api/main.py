@@ -23,9 +23,7 @@ app = FastAPI(title="Dahar Engineer Certificate API")
 # --- CORS Settings ---
 # Allow your React frontend to communicate with this API
 origins = [
-    "http://localhost:5173",
-    "http://localhost:3000",
-    "*" # For dev, ideally restrict in production
+    "https://daharengineer.com",
 ]
 
 app.add_middleware(
@@ -79,73 +77,94 @@ def create_raw_certificate(data: CertificateRequest) -> io.BytesIO:
     
     c.setFillColorRGB(*c_dark_blue)
     
-    # 2. Header
-    c.setFont(F_TITLE, 48)
-    c.drawCentredString(width / 2, height - 140, "SERTIFIKAT")
+    # 2. Top Branding Header (Compact & Horizontal)
+    logo_path = os.path.join(os.path.dirname(__file__), "..", "public", "logo.png")
+    brand_text = "DAHAR ENGINEER"
     
-    c.setFont(F_NORMAL, 14)
-    c.drawCentredString(width / 2, height - 170, "P E N G H A R G A A N")
+    # Calculate centering for both logo and text
+    header_y = height - 90
+    c.setFont(F_TITLE, 14)
+    text_width = c.stringWidth(brand_text, F_TITLE, 14)
+    logo_size = 20
+    gap = 8
+    total_header_width = logo_size + gap + text_width
+    start_x = (width - total_header_width) / 2
+    
+    if os.path.exists(logo_path):
+        c.drawImage(logo_path, start_x, header_y - 4, width=logo_size, height=logo_size, mask='auto')
+    
+    c.drawString(start_x + logo_size + gap, header_y, brand_text)
+    
+    # 3. Header Title (Compact)
+    c.setFont(F_TITLE, 42)
+    c.drawCentredString(width / 2, height - 150, "SERTIFIKAT")
+    
+    c.setFont(F_NORMAL, 12)
+    c.drawCentredString(width / 2, height - 175, "P E N G H A R G A A N")
     
     # Draw Lines around PENGHARGAAN
     c.setStrokeColorRGB(*c_dark_blue, alpha=0.3)
     c.setLineWidth(1)
-    c.line(width/2 - 200, height - 165, width/2 - 90, height - 165)
-    c.line(width/2 + 90, height - 165, width/2 + 200, height - 165)
+    c.line(width/2 - 180, height - 171, width/2 - 80, height - 171)
+    c.line(width/2 + 80, height - 171, width/2 + 180, height - 171)
     
-    # 3. ID
-    c.setFont(F_NORMAL, 12)
+    # 4. ID (Reduced gap)
+    c.setFont(F_NORMAL, 11)
     c.drawCentredString(width / 2, height - 210, f"No. : {data.certificateId}")
     
-    # 4. Recipient
-    c.setFont(F_NORMAL, 16)
-    c.drawCentredString(width / 2, height - 260, "Diberikan secara bangga kepada:")
-    
-    c.setFont(F_SERIF, 42)
-    c.drawCentredString(width / 2, height - 320, data.userName)
-    
-    c.line(width/2 - 150, height - 340, width/2 + 150, height - 340)
-    
-    # 5. Course Details
+    # 5. Recipient (Compact)
     c.setFont(F_NORMAL, 14)
-    c.drawCentredString(width / 2, height - 400, "Atas partisipasi aktif dan pencapaiannya dalam menyelesaikan program kursus:")
+    c.drawCentredString(width / 2, height - 250, "Diberikan secara bangga kepada:")
     
-    c.setFont(F_TITLE, 20)
-    c.drawCentredString(width / 2, height - 440, data.courseTitle)
+    c.setFont(F_SERIF, 38)
+    c.drawCentredString(width / 2, height - 300, data.userName)
     
-    # Try parsing date, fallback to raw string
+    c.setLineWidth(0.5)
+    c.line(width/2 - 140, height - 315, width/2 + 140, height - 315)
+    
+    # 6. Course Details (Compact)
+    c.setFont(F_NORMAL, 13)
+    c.drawCentredString(width / 2, height - 355, "Atas partisipasi aktif dan pencapaiannya dalam menyelesaikan program kursus:")
+    
+    c.setFont(F_TITLE, 18)
+    c.drawCentredString(width / 2, height - 385, data.courseTitle)
+    
+    # Try parsing date
     try:
         dt = datetime.datetime.fromisoformat(data.completedAt.replace("Z", "+00:00"))
         date_str = dt.strftime("%d %B %Y")
     except:
         date_str = data.completedAt
         
-    c.setFont(F_NORMAL, 14)
-    c.drawCentredString(width / 2, height - 490, f"Diselesaikan pada tanggal : {date_str}")
+    c.setFont(F_NORMAL, 13)
+    c.drawCentredString(width / 2, height - 425, f"Diselesaikan pada tanggal : {date_str}")
     
-    # 6. Signatures & QR
+    # 7. Signature & QR (Refined positions)
+    sig_x = width - 200
+    base_sig_y = 70
     
-    # Generate QR Code for verification link (Optional functionality)
+    # Generate QR Code
     qr = qrcode.QRCode(version=1, box_size=3, border=1)
     qr.add_data(f"https://daharengineer.com/verify/{data.certificateId}")
     qr.make(fit=True)
     qr_img = qr.make_image(fill_color="black", back_color="white")
     
-    # Save QR to a temporary file object so ReportLab can read it
     qr_buffer = io.BytesIO()
     qr_img.save(qr_buffer, format="PNG")
     qr_buffer.seek(0)
     
-    c.drawImage(from_filelike(qr_buffer), 100, 60, width=80, height=80)
-    c.setFont(F_NORMAL, 8)
-    c.drawCentredString(140, 45, "Scan for Verification")
+    # QR code more compact
+    c.drawImage(from_filelike(qr_buffer), sig_x - 30, base_sig_y + 45, width=60, height=60)
     
-    # Right Signature
-    sig_x = width - 200
-    c.line(sig_x - 100, 100, sig_x + 100, 100)
-    c.setFont(F_TITLE, 12)
-    c.drawCentredString(sig_x, 85, "David Harly Rizky Prabudhi, S.T.")
-    c.setFont(F_NORMAL, 10)
-    c.drawCentredString(sig_x, 70, "Director of PT. Dahar Engineer Consultant")
+    c.setFont(F_NORMAL, 6)
+    c.drawCentredString(sig_x, base_sig_y + 40, "Digital Signature")
+    
+    # Signature Right
+    c.line(sig_x - 100, base_sig_y + 30, sig_x + 100, base_sig_y + 30)
+    c.setFont(F_TITLE, 11)
+    c.drawCentredString(sig_x, base_sig_y + 16, "David Harly Rizky Prabudhi, S.T.")
+    c.setFont(F_NORMAL, 9)
+    c.drawCentredString(sig_x, base_sig_y + 2, "Director of PT. Dahar Engineer Consultant")
     
     c.showPage()
     c.save()
@@ -164,13 +183,18 @@ def sign_pdf(pdf_buffer: io.BytesIO) -> io.BytesIO:
     """Takes a raw PDF buffer, signs it using pyHanko, and returns the signed PDF."""
     signed_buffer = io.BytesIO()
     
-    # Check if dev cert exists
-    cert_path = "certs/dev_cert.p12"
-    if not os.path.exists(cert_path):
-        raise Exception("Certificate not found. Run generate_cert.py first.")
-        
-    # Load signer from PKCS12
-    signer = signers.SimpleSigner.load_pkcs12(cert_path, b"secret")
+    # Try loading from PEM files (more robust on Windows)
+    key_path = "certs/dev_key.pem"
+    cert_path = "certs/dev_cert.pem"
+    
+    if os.path.exists(key_path) and os.path.exists(cert_path):
+        signer = signers.SimpleSigner.load(key_path, cert_path)
+    else:
+        # Fallback to PKCS12
+        cert_p12_path = "certs/dev_cert.p12"
+        if not os.path.exists(cert_p12_path):
+            raise Exception("Certificates not found. Run generate_cert.py first.")
+        signer = signers.SimpleSigner.load_pkcs12(cert_p12_path, b"secret")
     
     # Prepare the Incremental Writer for PAdES signature
     pdf_writer = IncrementalPdfFileWriter(pdf_buffer)
@@ -191,7 +215,7 @@ def sign_pdf(pdf_buffer: io.BytesIO) -> io.BytesIO:
 
 # --- Endpoints ---
 @app.post("/generate-certificate")
-async def generate_certificate(request: CertificateRequest):
+def generate_certificate(request: CertificateRequest):
     try:
         # Step 1: Generate the raw visual PDF
         raw_pdf_buffer = create_raw_certificate(request)

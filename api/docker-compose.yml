@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  cert-api:
+    build: .
+    image: dahar-engineer-cert-api:latest
+    container_name: dahar-engineer-api-container
+    ports:
+      - "4002:4002"
+    volumes:
+      - .:/app
+    environment:
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
