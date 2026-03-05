@@ -7,6 +7,7 @@ interface AuthContextType {
   isLoading: boolean;
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;
+  loginWithGoogle: () => Promise<void>;
   register: (email: string, password: string, name: string) => Promise<void>;
   logout: () => void;
   refreshUser: () => Promise<void>;
@@ -78,6 +79,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const loginWithGoogle = async () => {
+    try {
+      const authData = await pb.collection('users').authWithOAuth2({ provider: 'google' });
+      setUser({
+        id: authData.record.id,
+        email: authData.record.email,
+        name: authData.record.name || authData.record.email,
+        avatar: authData.record.avatar,
+        created: authData.record.created,
+        updated: authData.record.updated,
+        collectionId: authData.record.collectionId,
+        collectionName: authData.record.collectionName,
+      });
+    } catch (error) {
+      console.error('Google login error:', error);
+      throw error;
+    }
+  };
+
   const register = async (email: string, password: string, name: string) => {
     try {
       const data = {
@@ -132,6 +152,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         isLoading,
         isAuthenticated: !!user,
         login,
+        loginWithGoogle,
         register,
         logout,
         refreshUser,
