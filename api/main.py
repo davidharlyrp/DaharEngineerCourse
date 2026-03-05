@@ -24,6 +24,7 @@ app = FastAPI(title="Dahar Engineer Certificate API")
 # Allow your React frontend to communicate with this API
 origins = [
     "https://course.daharengineer.com",
+    "https://admin.daharengineer.com",
 ]
 
 app.add_middleware(
