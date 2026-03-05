@@ -238,18 +238,18 @@ export function Home() {
                     <div className="flex flex-col items-start gap-2 mb-2">
                       <div className="flex items-center gap-2.5">
                         <BarChart3 className="w-4 h-4 text-army-500" />
-                        <span className="text-xs font-bold">{course.totalModules}</span>
-                        <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest opacity-60">Modules</span>
+                        <span className="text-xs font-semibold">{course.totalModules}</span>
+                        <span className="text-[9px] font-semibold text-muted-foreground uppercase tracking-widest opacity-60">Modules</span>
                       </div>
                       <div className="flex items-center gap-2.5">
                         <Clock className="w-4 h-4 text-army-500" />
-                        <span className="text-xs font-bold">{course.duration}</span>
-                        <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest opacity-60">Duration</span>
+                        <span className="text-xs font-semibold">{course.duration}</span>
+                        <span className="text-[9px] font-semibold text-muted-foreground uppercase tracking-widest opacity-60">Duration</span>
                       </div>
                       <div className="flex items-center gap-2.5">
                         <LineChart className="w-4 h-4 text-army-500" />
-                        <span className="text-xs font-bold">{course.level}</span>
-                        <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest opacity-60">Level</span>
+                        <span className="text-xs font-semibold">{course.level}</span>
+                        <span className="text-[9px] font-semibold text-muted-foreground uppercase tracking-widest opacity-60">Level</span>
                       </div>
                     </div>
 
@@ -257,7 +257,7 @@ export function Home() {
                       {/* Progress Section */}
                       <div className="mb-2">
                         <div className="flex justify-between items-end mb-2">
-                          <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em] opacity-60">Progress</span>
+                          <span className="text-[10px] font-semibold text-muted-foreground tracking-[0.2em] opacity-60">Progress</span>
                           <span className="text-sm font-bold text-army-400 leading-none">{Math.round(course.progressPercentage)}%</span>
                         </div>
                         <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
@@ -315,7 +315,7 @@ export function Home() {
       <footer className="py-12 border-t border-white/5 bg-dark-950/50">
         <div className="max-w-7xl mx-auto px-4 text-center">
           <p className="text-muted-foreground text-xs font-medium uppercase tracking-[0.3em] opacity-40">
-            &copy; {new Date().getFullYear()} Dahar Engineer Consultant • Elevating Excellence
+            &copy; {new Date().getFullYear()} Dahar Engineer • <a href="https://www.daharengineer.com" target="_blank" rel="noopener noreferrer">www.daharengineer.com</a>
           </p>
         </div>
       </footer>
